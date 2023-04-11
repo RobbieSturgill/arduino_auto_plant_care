@@ -1,0 +1,21 @@
+Soil moisture sensors:
+MOISTURE_1: A0
+MOISTURE_2: A1
+MOISTURE_3: A2
+MOISTURE_4: A3
+
+Relay modules:
+RELAY_1: 2
+RELAY_2: 3
+RELAY_3: 4
+RELAY_4: 5
+
+Rotary encoder:
+ENCODER_A: 6
+ENCODER_B: 7
+ENCODER_BUTTON: 8
+OLED display (uses I2C protocol):
+
+SCL: A5 (default SCL pin on most Arduino boards)
+SDA: A4 (default SDA pin on most Arduino boards)
+Make sure to connect the hardware components according to these pin definitions for the Arduino board you are using. Note that SCL and SDA pins might be different on some Arduino boards, so consult the documentation for your specific board to ensure the correct pin assignment for the I2C communication.
