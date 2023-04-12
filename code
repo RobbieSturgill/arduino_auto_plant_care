@@ -1,4 +1,21 @@
-<Wire.h>
+//Soil moisture sensor 1: Analog pin A0
+//Soil moisture sensor 2: Analog pin A1
+//Soil moisture sensor 3: Analog pin A2
+//Soil moisture sensor 4: Analog pin A3
+//Relay module 1: Digital pin 2
+//Relay module 2: Digital pin 3
+//Relay module 3: Digital pin 4
+//Relay module 4: Digital pin 5
+//Rotary encoder pin A: Digital pin 6
+//Rotary encoder pin B: Digital pin 7
+//Rotary encoder button: Digital pin 8
+//OLED SCL: SCL
+//OLED SDA: SDA
+
+
+
+
+#include <Wire.h>
 #include <U8g2lib.h>
 #include <Encoder.h>
 
@@ -46,61 +63,53 @@ unsigned long last_time;
 
 // Function to set the pump time based on the output of the PID loop
 void set_pump_time(int pump, int time) {
-  if (pump == 1) {
-    if (time > PUMP_TIME_MAX) {
-      time = PUMP_TIME_MAX;
-    }
-    if (time < PUMP_TIME_MIN) {
-      time = PUMP_TIME_MIN;
-    }
-    digitalWrite(RELAY_1, LOW); // Turn on the relay module
-    delay(time); // Wait for the pump time
-    digitalWrite(RELAY_1, HIGH); // Turn off the relay module
-  } else if (pump == 2) {
-    if (time > PUMP_TIME_MAX) {
-      time = PUMP_TIME_MAX;
-    }
-    if (time < PUMP_TIME_MIN) {
-      time = PUMP_TIME_MIN;
-    }
-    digitalWrite(RELAY_2, LOW); // Turn on the relay module
-    delay(time); // Wait for the pump time
-    digitalWrite(RELAY_2,HIGH); // Turn off the relay module
-} else if (pump == 3) {
-if (time > PUMP_TIME_MAX) {
-time = PUMP_TIME_MAX;
-}
-if (time < PUMP_TIME_MIN) {
-time = PUMP_TIME_MIN;
-}
-digitalWrite(RELAY_3, LOW); // Turn on the relay module
-delay(time); // Wait for the pump time
-digitalWrite(RELAY_3, HIGH); // Turn off the relay module
-} else if (pump == 4) {
-if (time > PUMP_TIME_MAX) {
-time = PUMP_TIME_MAX;
-}
-if (time < PUMP_TIME_MIN) {
-time = PUMP_TIME_MIN;
-}
-digitalWrite(RELAY_4, LOW); // Turn on the relay module
-delay(time); // Wait for the pump time
-digitalWrite(RELAY_4, HIGH); // Turn off the relay module
-}
+  if (time > PUMP_TIME_MAX) {
+    time = PUMP_TIME_MAX;
+  }
+  if (time < PUMP_TIME_MIN) {
+    time = PUMP_TIME_MIN;
+  }
+  
+  switch(pump) {
+    case 1:
+      digitalWrite(RELAY_1, LOW); // Turn on the relay module
+      delay(time); // Wait for the pump time
+      digitalWrite(RELAY_1, HIGH); // Turn off the relay module
+      break;
+    case 2:
+      digitalWrite(RELAY_2, LOW); // Turn on the relay module
+      delay(time); // Wait for the pump time
+      digitalWrite(RELAY_2, HIGH); // Turn off the relay module
+      break;
+    case 3:
+      digitalWrite(RELAY_3, LOW); // Turn on the relay module
+      delay(time); // Wait for the pump time
+      digitalWrite(RELAY_3, HIGH); // Turn off the relay module
+      break;
+    case 4:
+      digitalWrite(RELAY_4, LOW); // Turn on the relay module
+      delay(time); // Wait for the pump time
+      digitalWrite(RELAY_4, HIGH); // Turn off the relay module
+      break;
+  }
 }
 
 void setup() {
-// Initialize the serial communication
-Serial.begin(9600);
+  // Initialize the serial communication
+  Serial.begin(9600);
 
-// Initialize the relay modules as outputs
+  // Initialize the relay modules as outputs
 pinMode(RELAY_1, OUTPUT);
 pinMode(RELAY_2, OUTPUT);
 pinMode(RELAY_3, OUTPUT);
 pinMode(RELAY_4, OUTPUT);
 
 // Initialize the rotary encoder pins
+pinMode(ENCODER_A, INPUT);
+pinMode(ENCODER_B, INPUT);
 pinMode(ENCODER_BUTTON, INPUT_PULLUP);
+digitalWrite(ENCODER_A, HIGH);
+digitalWrite(ENCODER_B, HIGH);
 
 // Initialize the OLED u8g2
 u8g2.begin();
@@ -122,7 +131,7 @@ int moisture1 = analogRead(MOISTURE_1);
 int moisture2 = analogRead(MOISTURE_2);
 int moisture3 = analogRead(MOISTURE_3);
 int moisture4 = analogRead(MOISTURE_4);
-  
+
 // Compute the error for each plant
 error1 = setpoint - moisture1;
 error2 = setpoint - moisture2;
@@ -170,28 +179,35 @@ set_pump_time(4, pump_time4);
 
 // Update the OLED u8g2 with the moisture levels and pump times
 u8g2.clearBuffer();
-u8g2.setFont(u8g2_font_ncenB08_tr); // Set the desired font
+u8g2.setFont(u8g2_font_6x10_tf); // Set the desired font
 u8g2.setDrawColor(1); // Set the draw color to white (1)
 
 // u8g2 content in the yellow area
-u8g2.setCursor(0, 0);
+u8g2.setCursor(0, 10);
 u8g2.print("Moisture 1: ");
 u8g2.println(moisture1);
+u8g2.setCursor(0, 25);
 u8g2.print("Moisture 2: ");
 u8g2.println(moisture2);
 
 // u8g2 content in the blue area
-u8g2.setCursor(0, 32);
+u8g2.setCursor(0, 35);
 u8g2.print("Moisture 3: ");
 u8g2.println(moisture3);
+u8g2.setCursor(0, 45);
 u8g2.print("Moisture 4: ");
 u8g2.println(moisture4);
+
+u8g2.setCursor(64, 10);
 u8g2.print("Pump Time 1: ");
 u8g2.println(pump_time1);
+u8g2.setCursor(64, 25);
 u8g2.print("Pump Time 2: ");
 u8g2.println(pump_time2);
+u8g2.setCursor(64, 35);
 u8g2.print("Pump Time 3: ");
 u8g2.println(pump_time3);
+u8g2.setCursor(64, 45);
 u8g2.print("Pump Time 4: ");
 u8g2.println(pump_time4);
 
@@ -215,6 +231,23 @@ if (digitalRead(ENCODER_BUTTON) == LOW) {
 // Add any desired functionality when the encoder button is pressed
 }
 
+// Print the moisture levels and pump times to the Serial monitor
+Serial.print("Moisture 1: ");
+Serial.print(moisture1);
+Serial.print("\tMoisture 2: ");
+Serial.print(moisture2);
+Serial.print("\tMoisture 3: ");
+Serial.print(moisture3);
+Serial.print("\tMoisture 4: ");
+Serial.print(moisture4);
+Serial.print("\tPump Time 1: ");
+Serial.print(pump_time1);
+Serial.print("\tPump Time 2: ");
+Serial.print(pump_time2);
+Serial.print("\tPump Time 3: ");
+Serial.print(pump_time3);
+Serial.print("\tPump Time 4: ");
+Serial.println(pump_time4);
+
 delay(1000); // Wait for 1 second before repeating the loop
 }
-
